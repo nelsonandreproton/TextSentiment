@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extração de Texto e Busca Semântica</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .upload-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+        .upload-area:hover {
+            border-color: #0d6efd;
+        }
+        .upload-area.dragover {
+            border-color: #0d6efd;
+            background-color: #f8f9fa;
+        }
+        .result-card {
+            margin-top: 1rem;
+            border-left: 4px solid #0d6efd;
+        }
+        .similarity-score {
+            font-weight: bold;
+            color: #0d6efd;
+        }
+        .preview-text {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+        .loading {
+            display: none;
+        }
+        .image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            object-fit: contain;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/"><i class="bi bi-book"></i> Busca Bíblica Semântica</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/"><i class="bi bi-house"></i> Início</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/records"><i class="bi bi-list-ul"></i> Todos os Registros</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+        <div class="row">
+            <!-- Seção Adicionar Registro -->
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-plus-circle"></i> Adicionar Novo Registro</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="addRecordForm">
+                            <div class="mb-3">
+                                <label for="recordTitle" class="form-label">Título *</label>
+                                <input type="text" class="form-control" id="recordTitle" name="title"
+                                       placeholder="Digite o título..." required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="recordContent" class="form-label">Conteúdo *</label>
+                                <textarea class="form-control" id="recordContent" name="content" rows="6"
+                                          placeholder="Digite o conteúdo do texto..." required></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" id="addRecordBtn">
+                                <i class="bi bi-plus-circle"></i> Adicionar Registro
+                            </button>
+
+                            <div class="loading mt-3" id="addRecordLoading">
+                                <div class="d-flex align-items-center">
+                                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                                    Adicionando registro...
+                                </div>
+                            </div>
+                        </form>
+
+                        <div id="addRecordResult" class="mt-3"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção de Busca -->
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-search"></i> Buscar Textos Similares</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="searchForm">
+                            <div class="mb-3">
+                                <label for="searchQuery" class="form-label">Citação Bíblica ou Texto</label>
+                                <textarea class="form-control" id="searchQuery" name="query" rows="3"
+                                          placeholder="Digite uma citação bíblica (ex: 'Lucas 2,15') ou texto para encontrar conteúdo similar..."></textarea>
+                                <div class="form-text">
+                                    <small><strong>Exemplos de Citações Bíblicas:</strong> Lucas 2,15 • João 3:16 • Mateus 5.3 • 1 Coríntios 13,4</small>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-success" id="searchBtn">
+                                <i class="bi bi-search"></i> Buscar
+                            </button>
+
+                            <div class="loading mt-3" id="searchLoading">
+                                <div class="d-flex align-items-center">
+                                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                                    Buscando...
+                                </div>
+                            </div>
+                        </form>
+
+                        <div id="searchResults" class="mt-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção Todos os Registros -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-list"></i> Todos os Registros</h5>
+                        <button class="btn btn-outline-primary btn-sm" onclick="loadAllRecords()">
+                            <i class="bi bi-arrow-clockwise"></i> Atualizar
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="allRecords"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Editar Registro -->
+    <div class="modal fade" id="editRecordModal" tabindex="-1" aria-labelledby="editRecordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editRecordModalLabel">
+                        <i class="bi bi-pencil"></i> Editar Registro
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editRecordForm">
+                        <input type="hidden" id="editRecordId" name="record_id">
+                        <div class="mb-3">
+                            <label for="editRecordTitle" class="form-label">Título *</label>
+                            <input type="text" class="form-control" id="editRecordTitle" name="title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editRecordContent" class="form-label">Conteúdo *</label>
+                            <textarea class="form-control" id="editRecordContent" name="content" rows="8" required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveEditBtn">
+                        <i class="bi bi-check"></i> Salvar Alterações
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Form references
+        const addRecordForm = document.getElementById('addRecordForm');
+        const searchForm = document.getElementById('searchForm');
+
+        // Add record form submission
+        addRecordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(addRecordForm);
+            const addRecordBtn = document.getElementById('addRecordBtn');
+            const addRecordLoading = document.getElementById('addRecordLoading');
+            const addRecordResult = document.getElementById('addRecordResult');
+
+            addRecordBtn.disabled = true;
+            addRecordLoading.style.display = 'block';
+            addRecordResult.innerHTML = '';
+
+            try {
+                const response = await fetch('/add-record', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    addRecordResult.innerHTML = `
+                        <div class="alert alert-success">
+                            <h6><i class="bi bi-check-circle"></i> Registro adicionado com sucesso!</h6>
+                            <strong>Título:</strong> ${data.title}<br>
+                            <strong>Prévia do Conteúdo:</strong> ${data.content.substring(0, 100)}${data.content.length > 100 ? '...' : ''}
+                        </div>
+                    `;
+                    addRecordForm.reset();
+                    loadAllRecords();
+                } else if (data.duplicate_detected) {
+                    // Handle duplicate detection
+                    const existingRecord = data.existing_record;
+                    const createdDate = new Date(existingRecord.created_at).toLocaleDateString();
+
+                    addRecordResult.innerHTML = `
+                        <div class="alert alert-warning">
+                            <h6><i class="bi bi-exclamation-triangle"></i> Título Duplicado Detectado!</h6>
+                            <p><strong>Título:</strong> "${data.title}"</p>
+                            <p>Um registro com este título já existe:</p>
+                            <div class="border p-2 bg-light rounded mt-2">
+                                <strong>ID:</strong> ${existingRecord.id}<br>
+                                <strong>Título:</strong> ${existingRecord.title}<br>
+                                <strong>Criado em:</strong> ${createdDate}
+                            </div>
+                            <div class="mt-3">
+                                <button class="btn btn-primary btn-sm" onclick="showExistingRecord('${existingRecord.id}')">
+                                    <i class="bi bi-eye"></i> Ver Registro Existente
+                                </button>
+                                <button class="btn btn-outline-secondary btn-sm" onclick="clearAddRecordResult()">
+                                    <i class="bi bi-x"></i> Limpar
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(data.detail || data.message || 'Falha ao adicionar registro');
+                }
+            } catch (error) {
+                addRecordResult.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle"></i> Erro: ${error.message}
+                    </div>
+                `;
+            } finally {
+                addRecordBtn.disabled = false;
+                addRecordLoading.style.display = 'none';
+            }
+        });
+
+        // Search form submission
+        searchForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(searchForm);
+            const searchBtn = document.getElementById('searchBtn');
+            const searchLoading = document.getElementById('searchLoading');
+            const searchResults = document.getElementById('searchResults');
+
+            searchBtn.disabled = true;
+            searchLoading.style.display = 'block';
+            searchResults.innerHTML = '';
+
+            try {
+                const response = await fetch('/search', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    let resultsHtml = '';
+
+                    // Show Bible citation info if detected
+                    if (data.bible_citation && data.bible_citation.detected) {
+                        resultsHtml += `
+                            <div class="alert alert-info mb-3">
+                                <h6><i class="bi bi-book"></i> Citação Bíblica Detectada</h6>
+                                <strong>${data.bible_citation.citation}:</strong><br>
+                                <em>"${data.bible_citation.text}"</em>
+                                <br><small class="text-muted mt-1">Buscando registros similares a este versículo...</small>
+                            </div>
+                        `;
+                    }
+
+                    if (data.results.length > 0) {
+                        resultsHtml += `<h6>Encontrados ${data.count} textos similares:</h6>`;
+                        data.results.forEach(result => {
+                            resultsHtml += `
+                                <div class="result-card card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <h6 class="card-title">${result.title}</h6>
+                                            <span class="badge bg-primary similarity-score">${(result.similarity_score * 100).toFixed(1)}%</span>
+                                        </div>
+                                        <p class="preview-text">${result.preview}</p>
+                                        <small class="text-muted">ID: ${result.id} | Criado em: ${new Date(result.created_at).toLocaleDateString()}</small>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        searchResults.innerHTML = resultsHtml;
+                    } else {
+                        const searchType = data.bible_citation && data.bible_citation.detected ? 'versículo bíblico' : 'texto';
+                        resultsHtml += `
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> Nenhum texto similar encontrado para este ${searchType}.
+                            </div>
+                        `;
+                        searchResults.innerHTML = resultsHtml;
+                    }
+                } else {
+                    // Handle Bible citation not found error
+                    if (data.error && data.error.includes('Bible citation')) {
+                        searchResults.innerHTML = `
+                            <div class="alert alert-warning">
+                                <h6><i class="bi bi-exclamation-triangle"></i> Citação Bíblica Não Encontrada</h6>
+                                <p>${data.error}</p>
+                                <small class="text-muted">
+                                    <strong>Formatos suportados:</strong> Lucas 2,15 • João 3:16 • Mateus 5.3<br>
+                                    Ou digite qualquer texto para buscar diretamente.
+                                </small>
+                            </div>
+                        `;
+                    } else {
+                        throw new Error(data.error || data.detail || 'Busca falhou');
+                    }
+                }
+            } catch (error) {
+                searchResults.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle"></i> Erro: ${error.message}
+                    </div>
+                `;
+            } finally {
+                searchBtn.disabled = false;
+                searchLoading.style.display = 'none';
+            }
+        });
+
+        // Load all records
+        async function loadAllRecords() {
+            const allRecords = document.getElementById('allRecords');
+
+            try {
+                const response = await fetch('/api/records');
+                const data = await response.json();
+
+                if (data.success) {
+                    if (data.records.length > 0) {
+                        let recordsHtml = '';
+                        data.records.forEach(record => {
+                            recordsHtml += `
+                                <div class="card mb-2">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="card-title">${record.title}</h6>
+                                                <p class="preview-text">${record.preview}</p>
+                                                <small class="text-muted">ID: ${record.id} | Created: ${new Date(record.created_at).toLocaleDateString()}</small>
+                                            </div>
+                                            <div class="btn-group" role="group">
+                                                <button class="btn btn-outline-primary btn-sm" onclick="editRecord('${record.id}')">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger btn-sm" onclick="deleteRecord('${record.id}')">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        allRecords.innerHTML = recordsHtml;
+                    } else {
+                        allRecords.innerHTML = `
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> Nenhum registro encontrado. Adicione alguns registros para começar!
+                            </div>
+                        `;
+                    }
+                } else {
+                    throw new Error('Falha ao carregar registros');
+                }
+            } catch (error) {
+                allRecords.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle"></i> Erro ao carregar registros: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // Delete record
+        async function deleteRecord(id) {
+            if (!confirm('Tem certeza que deseja excluir este registro?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/records/${id}`, { method: 'DELETE' });
+                const data = await response.json();
+
+                if (data.success) {
+                    loadAllRecords();
+                } else {
+                    alert('Falha ao excluir registro');
+                }
+            } catch (error) {
+                alert('Erro ao excluir registro: ' + error.message);
+            }
+        }
+
+        // Edit record functionality
+        async function editRecord(recordId) {
+            try {
+                // Fetch record details
+                const response = await fetch(`/api/records/${recordId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const record = data.record;
+                    // Populate the edit form
+                    document.getElementById('editRecordId').value = recordId;
+                    document.getElementById('editRecordTitle').value = record.title;
+                    document.getElementById('editRecordContent').value = record.extracted_text;
+
+                    // Show the modal
+                    const modal = new bootstrap.Modal(document.getElementById('editRecordModal'));
+                    modal.show();
+                } else {
+                    alert('Falha ao carregar detalhes do registro');
+                }
+            } catch (error) {
+                alert('Erro ao carregar registro: ' + error.message);
+            }
+        }
+
+        // Save edit changes
+        document.getElementById('saveEditBtn').addEventListener('click', async () => {
+            const recordId = document.getElementById('editRecordId').value;
+            const title = document.getElementById('editRecordTitle').value.trim();
+            const content = document.getElementById('editRecordContent').value.trim();
+
+            if (!title || !content) {
+                alert('Título e conteúdo são obrigatórios');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/records/${recordId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        content: content
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Close modal and refresh records
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('editRecordModal'));
+                    modal.hide();
+                    loadAllRecords();
+
+                    // Show success message briefly
+                    const allRecords = document.getElementById('allRecords');
+                    const successDiv = document.createElement('div');
+                    successDiv.className = 'alert alert-success alert-dismissible fade show';
+                    successDiv.innerHTML = `
+                        <i class="bi bi-check-circle"></i> Registro atualizado com sucesso!
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    allRecords.insertBefore(successDiv, allRecords.firstChild);
+
+                    setTimeout(() => {
+                        if (successDiv.parentNode) {
+                            successDiv.remove();
+                        }
+                    }, 3000);
+                } else {
+                    alert('Falha ao atualizar registro: ' + (data.message || 'Erro desconhecido'));
+                }
+            } catch (error) {
+                alert('Erro ao atualizar registro: ' + error.message);
+            }
+        });
+
+        // Helper functions
+        function clearAddRecordResult() {
+            document.getElementById('addRecordResult').innerHTML = '';
+        }
+
+        function showExistingRecord(recordId) {
+            // Scroll to records section and highlight the existing record
+            document.querySelector('#allRecords').scrollIntoView({ behavior: 'smooth' });
+
+            // Refresh records to ensure the existing record is visible
+            loadAllRecords().then(() => {
+                // Highlight the existing record briefly
+                setTimeout(() => {
+                    const recordCards = document.querySelectorAll('#allRecords .card');
+                    recordCards.forEach(card => {
+                        const cardText = card.textContent;
+                        if (cardText.includes(`ID: ${recordId}`)) {
+                            card.style.border = '2px solid #ffc107';
+                            card.style.backgroundColor = '#fff3cd';
+                            setTimeout(() => {
+                                card.style.border = '';
+                                card.style.backgroundColor = '';
+                            }, 3000);
+                        }
+                    });
+                }, 100);
+            });
+        }
+
+        // Load records on page load
+        loadAllRecords();
+    </script>
+</body>
+</html>

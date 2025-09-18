@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m pip install:*)",
+      "Bash(python:*)",
+      "Bash(pip install:*)",
+      "Bash(dir uploads)",
+      "Bash(ollama pull:*)",
+      "Bash(ollama list:*)",
+      "Bash(curl:*)",
+      "WebSearch",
+      "WebFetch(domain:documenter.getpostman.com)",
+      "WebFetch(domain:get.bible)",
+      "WebFetch(domain:bolls.life)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
