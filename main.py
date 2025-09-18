@@ -272,7 +272,7 @@ async def get_record_detail(record_id: str):
         record = await database.get_record_by_id(record_id)
 
         if not record:
-            raise HTTPException(status_code=404, detail="Record not found")
+            raise HTTPException(status_code=404, detail="Registro não encontrado")
 
         return JSONResponse({
             "success": True,
@@ -291,11 +291,11 @@ async def get_record_detail(record_id: str):
         raise
     except Exception as e:
         logger.error(f"Failed to get record {record_id}: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve record")
+        raise HTTPException(status_code=500, detail="Falha ao recuperar registro")
 
 @app.put("/records/{record_id}")
 async def update_record(record_id: str, request: Request):
-    """Update a text record."""
+    """Atualizar um registro de texto."""
     try:
         # Get JSON data from request
         data = await request.json()
@@ -310,7 +310,7 @@ async def update_record(record_id: str, request: Request):
         # Check if the record exists
         existing_record = await database.get_record_by_id(record_id)
         if not existing_record:
-            raise HTTPException(status_code=404, detail="Record not found")
+            raise HTTPException(status_code=404, detail="Registro não encontrado")
 
         # Check if title already exists (but allow same record to keep same title)
         title_exists = await database.check_title_exists(title)
@@ -329,40 +329,40 @@ async def update_record(record_id: str, request: Request):
         # Generate new embedding for updated content
         embedding = await embedding_service.generate_embedding(content)
         if embedding is None:
-            raise HTTPException(status_code=500, detail="Failed to generate embedding")
+            raise HTTPException(status_code=500, detail="Falha ao gerar embedding")
 
         # Update the record
         success = await database.update_record(record_id, title, content, embedding)
         if success:
-            return JSONResponse({"success": True, "message": "Record updated successfully"})
+            return JSONResponse({"success": True, "message": "Registro atualizado com sucesso"})
         else:
-            raise HTTPException(status_code=404, detail="Record not found")
+            raise HTTPException(status_code=404, detail="Registro não encontrado")
 
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Failed to update record {record_id}: {e}")
-        raise HTTPException(status_code=500, detail="Failed to update record")
+        raise HTTPException(status_code=500, detail="Falha ao atualizar registro")
 
 @app.delete("/records/{record_id}")
 async def delete_record(record_id: str):
-    """Delete a text record."""
+    """Excluir um registro de texto."""
     try:
         success = await database.delete_record(record_id)
         if success:
-            return JSONResponse({"success": True, "message": "Record deleted successfully"})
+            return JSONResponse({"success": True, "message": "Registro excluído com sucesso"})
         else:
-            raise HTTPException(status_code=404, detail="Record not found")
+            raise HTTPException(status_code=404, detail="Registro não encontrado")
 
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Failed to delete record {record_id}: {e}")
-        raise HTTPException(status_code=500, detail="Failed to delete record")
+        raise HTTPException(status_code=500, detail="Falha ao excluir registro")
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint."""
+    """Endpoint de verificação de saúde."""
     try:
         model_available = await embedding_service.check_model_availability()
         return {

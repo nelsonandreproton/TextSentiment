@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Record Details - Text Sentiment Extraction</title>
+    <title>Detalhes do Registro - Busca Bíblica Semântica</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
@@ -58,17 +58,17 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="/"><i class="bi bi-image"></i> Text Sentiment Extraction</a>
+            <a class="navbar-brand" href="/"><i class="bi bi-book"></i> Busca Bíblica Semântica</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/"><i class="bi bi-house"></i> Home</a>
+                        <a class="nav-link" href="/"><i class="bi bi-house"></i> Início</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/records"><i class="bi bi-list-ul"></i> All Records</a>
+                        <a class="nav-link" href="/records"><i class="bi bi-list-ul"></i> Todos os Registros</a>
                     </li>
                 </ul>
             </div>
@@ -80,7 +80,7 @@
         <div class="row mb-3">
             <div class="col-12">
                 <a href="/records" class="back-link">
-                    <i class="bi bi-arrow-left"></i> Back to All Records
+                    <i class="bi bi-arrow-left"></i> Voltar para Todos os Registros
                 </a>
             </div>
         </div>
@@ -88,9 +88,9 @@
         <!-- Loading -->
         <div class="loading" id="loading">
             <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
+                <span class="visually-hidden">Carregando...</span>
             </div>
-            <p class="mt-2">Loading record details...</p>
+            <p class="mt-2">Carregando detalhes do registro...</p>
         </div>
 
         <!-- Error Message -->
@@ -113,7 +113,7 @@
                     <!-- Extracted Text -->
                     <div class="content-section">
                         <h4 class="mb-3">
-                            <i class="bi bi-file-text"></i> Extracted Text
+                            <i class="bi bi-file-text"></i> Texto Extraído
                         </h4>
                         <div class="text-content" id="recordText"></div>
                     </div>
@@ -121,11 +121,11 @@
                     <!-- Search Similar -->
                     <div class="content-section">
                         <h5 class="mb-3">
-                            <i class="bi bi-search"></i> Find Similar Records
+                            <i class="bi bi-search"></i> Encontrar Registros Similares
                         </h5>
-                        <p class="text-muted mb-3">Use the content from this record to find similar texts:</p>
+                        <p class="text-muted mb-3">Use o conteúdo deste registro para encontrar textos similares:</p>
                         <button class="btn btn-outline-primary" onclick="searchSimilar()">
-                            <i class="bi bi-search"></i> Search Similar Content
+                            <i class="bi bi-search"></i> Buscar Conteúdo Similar
                         </button>
                         <div id="similarResults" class="mt-3"></div>
                     </div>
@@ -136,16 +136,16 @@
                     <div class="action-buttons">
                         <!-- Action Buttons -->
                         <div class="meta-card mb-3">
-                            <h6 class="mb-3">Actions</h6>
+                            <h6 class="mb-3">Ações</h6>
                             <div class="d-grid gap-2">
                                 <button class="btn btn-primary" onclick="copyToClipboard()">
-                                    <i class="bi bi-clipboard"></i> Copy Text
+                                    <i class="bi bi-clipboard"></i> Copiar Texto
                                 </button>
                                 <button class="btn btn-outline-secondary" onclick="printRecord()">
-                                    <i class="bi bi-printer"></i> Print
+                                    <i class="bi bi-printer"></i> Imprimir
                                 </button>
                                 <button class="btn btn-outline-danger" onclick="deleteRecord()">
-                                    <i class="bi bi-trash"></i> Delete Record
+                                    <i class="bi bi-trash"></i> Excluir Registro
                                 </button>
                             </div>
                         </div>
@@ -155,29 +155,29 @@
                             <div class="col-6">
                                 <div class="stat-card">
                                     <div class="stat-number" id="wordCount">0</div>
-                                    <div>Words</div>
+                                    <div>Palavras</div>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="stat-card">
                                     <div class="stat-number" id="charCount">0</div>
-                                    <div>Characters</div>
+                                    <div>Caracteres</div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Metadata -->
                         <div class="meta-card">
-                            <h6 class="mb-3">Record Information</h6>
+                            <h6 class="mb-3">Informações do Registro</h6>
                             <div class="mb-2">
                                 <strong>ID:</strong> <span id="recordId"></span>
                             </div>
                             <div class="mb-2">
-                                <strong>Image File:</strong><br>
+                                <strong>Arquivo de Imagem:</strong><br>
                                 <small class="text-muted" id="imageFilename"></small>
                             </div>
                             <div class="mb-2">
-                                <strong>Created:</strong><br>
+                                <strong>Criado em:</strong><br>
                                 <span id="createdDate"></span><br>
                                 <small class="text-muted" id="createdTime"></small>
                             </div>
@@ -194,14 +194,14 @@
             <div class="modal-content">
                 <div class="modal-header bg-success text-white">
                     <h5 class="modal-title">
-                        <i class="bi bi-check-circle"></i> Success
+                        <i class="bi bi-check-circle"></i> Sucesso
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body" id="successMessage">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
                 </div>
             </div>
         </div>
@@ -266,7 +266,7 @@
         async function copyToClipboard() {
             try {
                 await navigator.clipboard.writeText(recordData.extracted_text);
-                showSuccess('Text copied to clipboard successfully!');
+                showSuccess('Texto copiado para a área de transferência com sucesso!');
             } catch (error) {
                 // Fallback for older browsers
                 const textArea = document.createElement('textarea');
@@ -275,7 +275,7 @@
                 textArea.select();
                 document.execCommand('copy');
                 document.body.removeChild(textArea);
-                showSuccess('Text copied to clipboard successfully!');
+                showSuccess('Texto copiado para a área de transferência com sucesso!');
             }
         }
 

@@ -1,61 +1,60 @@
-# MongoDB Setup Guide for Text Sentiment Extraction
+# Guia de Configuração do MongoDB para Busca Bíblica Semântica
 
-This guide provides step-by-step instructions to install and configure all required software for the Text Sentiment Extraction application using MongoDB.
+Este guia fornece instruções passo a passo para instalar e configurar todo o software necessário para a aplicação de Busca Bíblica Semântica usando MongoDB.
 
-## 📋 **Software Requirements**
+## 📋 **Requisitos de Software**
 
-You need to install 4 pieces of software:
-1. **MongoDB Community Server** (Database)
-2. **Tesseract OCR** (Text extraction from images)
-3. **Ollama** (AI embeddings)
-4. **Python Dependencies** (Handled automatically)
+Você precisa instalar 3 softwares:
+1. **MongoDB Community Server** (Banco de dados)
+2. **Ollama** (IA para embeddings)
+3. **Dependências Python** (Tratadas automaticamente)
 
 ---
 
-## 🗄️ **1. MongoDB Community Server Installation**
+## 🗄️ **1. Instalação do MongoDB Community Server**
 
 ### **Windows:**
-1. **Download MongoDB:**
-   - Go to: https://www.mongodb.com/try/download/community
-   - Select: `Windows x64`
-   - Click: `Download`
+1. **Download do MongoDB:**
+   - Vá para: https://www.mongodb.com/try/download/community
+   - Selecione: `Windows x64`
+   - Clique: `Download`
 
-2. **Install MongoDB:**
-   - Run the downloaded `.msi` file
-   - Choose: `Complete` installation
-   - ✅ **Check:** "Install MongoDB as a Service"
-   - ✅ **Check:** "Run service as Network Service user"
-   - ✅ **Check:** "Install MongoDB Compass" (optional GUI)
-   - Click: `Install`
+2. **Instalar MongoDB:**
+   - Execute o arquivo `.msi` baixado
+   - Escolha: instalação `Complete`
+   - ✅ **Marque:** "Install MongoDB as a Service"
+   - ✅ **Marque:** "Run service as Network Service user"
+   - ✅ **Marque:** "Install MongoDB Compass" (GUI opcional)
+   - Clique: `Install`
 
-3. **Verify Installation:**
+3. **Verificar Instalação:**
    ```bash
-   # Open Command Prompt and test:
+   # Abra o Prompt de Comando e teste:
    mongo --version
-   # Or for newer versions:
+   # Ou para versões mais novas:
    mongosh --version
    ```
 
 ### **Linux (Ubuntu/Debian):**
 ```bash
-# Import MongoDB public key
+# Importar chave pública do MongoDB
 wget -qO - https://www.mongodb.org/static/pgp/server-7.0.asc | sudo apt-key add -
 
-# Add MongoDB repository
+# Adicionar repositório do MongoDB
 echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
 
-# Update packages and install
+# Atualizar pacotes e instalar
 sudo apt update
 sudo apt install -y mongodb-org
 
-# Start MongoDB service
+# Iniciar serviço do MongoDB
 sudo systemctl start mongod
 sudo systemctl enable mongod
 ```
 
 ### **macOS:**
 ```bash
-# Using Homebrew
+# Usando Homebrew
 brew tap mongodb/brew
 brew install mongodb-community
 brew services start mongodb-community
@@ -63,166 +62,128 @@ brew services start mongodb-community
 
 ---
 
-## 👁️ **2. Tesseract OCR Installation**
+## 🤖 **2. Instalação do Ollama**
 
 ### **Windows:**
-1. **Download Tesseract:**
-   - Go to: https://github.com/UB-Mannheim/tesseract/wiki
-   - Download: `tesseract-ocr-w64-setup-5.3.x.exe` (latest version)
+1. **Download do Ollama:**
+   - Vá para: https://ollama.ai/download
+   - Clique: `Download for Windows`
 
-2. **Install Tesseract:**
-   - Run the installer
-   - ✅ **Important:** Note the installation path (usually `C:\Program Files\Tesseract-OCR`)
-   - ✅ **Check:** "Add to PATH" if available
+2. **Instalar Ollama:**
+   - Execute o instalador baixado
+   - Siga o assistente de instalação
 
-3. **Add to PATH (if not automatic):**
-   - Open: `System Properties` → `Environment Variables`
-   - Edit: `PATH` variable
-   - Add: `C:\Program Files\Tesseract-OCR`
-
-4. **Verify Installation:**
+3. **Instalar o modelo de embedding:**
    ```bash
-   tesseract --version
-   ```
-
-### **Linux (Ubuntu/Debian):**
-```bash
-sudo apt update
-sudo apt install tesseract-ocr tesseract-ocr-por
-```
-
-### **macOS:**
-```bash
-brew install tesseract
-```
-
----
-
-## 🤖 **3. Ollama Installation**
-
-### **Windows:**
-1. **Download Ollama:**
-   - Go to: https://ollama.ai/download
-   - Click: `Download for Windows`
-
-2. **Install Ollama:**
-   - Run the downloaded installer
-   - Follow the installation wizard
-
-3. **Install the embedding model:**
-   ```bash
-   # Open Command Prompt and run:
+   # Abra o Prompt de Comando e execute:
    ollama pull nomic-embed-text
    ```
 
 ### **Linux:**
 ```bash
-# Install Ollama
+# Instalar Ollama
 curl -fsSL https://ollama.ai/install.sh | sh
 
-# Pull the embedding model
+# Baixar o modelo de embedding
 ollama pull nomic-embed-text
 
-# Start Ollama service (if needed)
+# Iniciar serviço Ollama (se necessário)
 ollama serve
 ```
 
 ### **macOS:**
 ```bash
-# Download from https://ollama.ai/download or use:
+# Download de https://ollama.ai/download ou use:
 brew install ollama
 
-# Pull the embedding model
+# Baixar o modelo de embedding
 ollama pull nomic-embed-text
 ```
 
 ---
 
-## 🐍 **4. Python Project Setup**
+## 🐍 **3. Configuração do Projeto Python**
 
-### **Step 1: Install Dependencies**
+### **Passo 1: Instalar Dependências**
 ```bash
 cd TextSentiment
-python install_deps.py
+pip install -r config/requirements.txt
 ```
 
-### **Step 2: Run MongoDB Setup**
+### **Passo 2: Configurar Variáveis de Ambiente**
 ```bash
-python setup_mongodb.py
+# Copie o arquivo de exemplo
+cp config/.env.example .env
+
+# Edite o arquivo .env com suas configurações
 ```
 
-### **Step 3: Start the Application**
+### **Passo 3: Iniciar a Aplicação**
 ```bash
 python main.py
 ```
 
 ---
 
-## ✅ **Verification Checklist**
+## ✅ **Lista de Verificação**
 
-Run these commands to verify everything is working:
+Execute estes comandos para verificar se tudo está funcionando:
 
 ### **MongoDB:**
 ```bash
-# Test MongoDB connection
+# Testar conexão MongoDB
 mongosh --eval "db.runCommand('ping')"
-```
-
-### **Tesseract:**
-```bash
-# Test Tesseract
-tesseract --version
 ```
 
 ### **Ollama:**
 ```bash
-# Test Ollama
+# Testar Ollama
 ollama list
-# Should show "nomic-embed-text" in the list
+# Deve mostrar "nomic-embed-text" na lista
 ```
 
-### **Application:**
+### **Aplicação:**
 ```bash
-# Test the app
-python setup_mongodb.py
-# Should show all green [OK] messages
+# Testar a aplicação
+python main.py
+# Deve iniciar o servidor na porta 8000
 ```
 
 ---
 
-## 🚀 **Quick Start Summary**
+## 🚀 **Resumo de Início Rápido**
 
-1. **Install MongoDB Community Server** → Start service
-2. **Install Tesseract OCR** → Add to PATH
-3. **Install Ollama** → Pull `nomic-embed-text` model
-4. **Run:** `python install_deps.py`
-5. **Run:** `python setup_mongodb.py`
-6. **Run:** `python main.py`
-7. **Open:** http://localhost:8000
+1. **Instalar MongoDB Community Server** → Iniciar serviço
+2. **Instalar Ollama** → Baixar modelo `nomic-embed-text`
+3. **Executar:** `pip install -r config/requirements.txt`
+4. **Configurar:** arquivo `.env`
+5. **Executar:** `python main.py`
+6. **Abrir:** http://localhost:8000
 
 ---
 
-## 🔧 **Configuration**
+## 🔧 **Configuração**
 
-### **MongoDB Settings (optional):**
-Edit `.env` file if needed:
+### **Configurações do MongoDB (opcional):**
+Edite o arquivo `.env` se necessário:
 ```env
 MONGODB_URL=mongodb://localhost:27017
-MONGODB_DATABASE=textsentiment
+MONGODB_DATABASE=bible_search
+OLLAMA_URL=http://localhost:11434
 ```
 
-### **For MongoDB with Authentication:**
+### **Para MongoDB com Autenticação:**
 ```env
 MONGODB_URL=mongodb://username:password@localhost:27017
 ```
 
 ---
 
-## 🆘 **Troubleshooting**
+## 🆘 **Solução de Problemas**
 
-### **MongoDB Connection Issues:**
+### **Problemas de Conexão MongoDB:**
 ```bash
-# Check if MongoDB is running
+# Verificar se MongoDB está rodando
 # Windows:
 net start MongoDB
 
@@ -230,38 +191,53 @@ net start MongoDB
 sudo systemctl status mongod
 ```
 
-### **Tesseract Not Found:**
-- Make sure Tesseract is in your PATH
-- Try reinstalling and checking "Add to PATH"
-
-### **Ollama Model Missing:**
+### **Modelo Ollama Ausente:**
 ```bash
 ollama pull nomic-embed-text
 ```
 
-### **Port Conflicts:**
-- MongoDB default port: `27017`
-- Ollama default port: `11434`
-- App default port: `8000`
+### **Conflitos de Porta:**
+- MongoDB porta padrão: `27017`
+- Ollama porta padrão: `11434`
+- App porta padrão: `8000`
 
 ---
 
-## 📊 **Default Ports Used**
+## 📊 **Portas Padrão Utilizadas**
 
-| Service | Port | Purpose |
-|---------|------|---------|
-| MongoDB | 27017 | Database |
-| Ollama | 11434 | AI Embeddings |
-| Web App | 8000 | User Interface |
+| Serviço | Porta | Propósito |
+|---------|-------|-----------|
+| MongoDB | 27017 | Banco de dados |
+| Ollama | 11434 | IA Embeddings |
+| Web App | 8000 | Interface do usuário |
 
 ---
 
-## 🎯 **Next Steps**
+## 🎯 **Próximos Passos**
 
-After successful setup:
-1. **Upload test images** with red titles and black text
-2. **Test duplicate detection** by uploading the same title twice
-3. **Try semantic search** with bible verses
-4. **Browse the records page** to manage your data
+Após configuração bem-sucedida:
+1. **Adicionar registros de teste** com títulos e conteúdo
+2. **Testar detecção de duplicatas** adicionando o mesmo título duas vezes
+3. **Testar busca semântica** com versículos bíblicos
+4. **Navegar pela página de registros** para gerenciar seus dados
+5. **Testar citações bíblicas** como "Lucas 2,15" ou "João 3:16"
 
-The MongoDB version is much simpler to set up than PostgreSQL and provides excellent performance for your use case!
+## 💡 **Recursos da Aplicação**
+
+### **Busca por Citações Bíblicas:**
+- Digite citações como: `Lucas 2,15`, `João 3:16`, `Mateus 5.3`
+- O sistema automaticamente busca o versículo e encontra textos similares
+- Suporta todas as traduções portuguesas da Bíblia
+
+### **Gerenciamento de Registros:**
+- Interface completamente em português
+- Adicionar, editar e excluir registros
+- Busca semântica avançada
+- Detecção automática de duplicatas
+
+### **API Bíblica Integrada:**
+- 16 traduções portuguesas disponíveis
+- Detecção automática de citações vs. texto livre
+- Mapeamento completo dos 66 livros bíblicos
+
+A versão MongoDB é muito mais simples de configurar e oferece excelente performance para seu caso de uso!
