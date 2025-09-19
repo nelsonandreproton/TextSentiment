@@ -17,7 +17,20 @@
       "Bash(taskkill:*)",
       "Bash(ollama serve:*)",
       "Bash(netstat:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(mkdir:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(dart analyze:*)",
+      "Bash(Remove-Item -Recurse -Force mobile)",
+      "Bash(\"C:\\DEV\\Android\\Flutter\\flutter\\bin\\flutter\" create --org com.bibleapp --platforms android mobile/BibleSearchApp)",
+      "Bash(\"C:\\DEV\\Android\\Flutter\\flutter\\bin\\flutter\" create --org com.bibleapp --platforms android mobile/bible_search_app)",
+      "Bash(\"C:\\DEV\\Android\\Flutter\\flutter\\bin\\flutter\" pub get)",
+      "Bash(\"C:\\DEV\\Android\\Flutter\\flutter\\bin\\flutter\" run -d GAIBNVKBINFYD6AA)",
+      "Bash(\"C:\\DEV\\Android\\Flutter\\flutter\\bin\\flutter\" run --no-pub)",
+      "Bash(\"C:\\DEV\\Android\\Flutter\\flutter\\bin\\flutter\" install)",
+      "Bash(\"C:\\DEV\\Android\\Flutter\\flutter\\bin\\flutter\" attach)",
+      "Bash(\"C:\\DEV\\Android\\Flutter\\flutter\\bin\\flutter\" logs)",
+      "Bash(dir \"C:\\DEV\\TextSentiment\\mobile\\bible_search_app\\assets\\database\"\")"
     ],
     "deny": [],
     "ask": []
