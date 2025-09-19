@@ -11,7 +11,13 @@
       "WebSearch",
       "WebFetch(domain:documenter.getpostman.com)",
       "WebFetch(domain:get.bible)",
-      "WebFetch(domain:bolls.life)"
+      "WebFetch(domain:bolls.life)",
+      "Bash(tasklist:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(ollama serve:*)",
+      "Bash(netstat:*)",
+      "Bash(tree:*)"
     ],
     "deny": [],
     "ask": []

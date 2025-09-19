@@ -362,7 +362,7 @@
 
                 if (data.success) {
                     if (data.results.length > 0) {
-                        let resultsHtml = '<h6 class="mt-3">Similar Records:</h6>';
+                        let resultsHtml = '<h6 class="mt-3">Registros Similares:</h6>';
                         data.results.forEach(result => {
                             if (result.id !== recordData.id) { // Don't show the current record
                                 resultsHtml += `
@@ -377,7 +377,7 @@
                                                     </h6>
                                                     <p class="card-text small text-muted">${result.preview}</p>
                                                 </div>
-                                                <span class="badge bg-primary">${(result.similarity_score * 100).toFixed(1)}%</span>
+                                                <span class="badge bg-success" style="font-size: 0.9em; font-weight: bold; color: white;">${(result.similarity_score * 100).toFixed(1)}% similar</span>
                                             </div>
                                         </div>
                                     </div>

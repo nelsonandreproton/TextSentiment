@@ -1,20 +1,16 @@
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request
+from fastapi import FastAPI, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from contextlib import asynccontextmanager
-import aiofiles
-import uuid
 from pathlib import Path
 import logging
-from typing import Optional, List
-import shutil
 
-from config.settings import MAX_FILE_SIZE_MB, UPLOAD_DIR, ALLOWED_EXTENSIONS
-from app.services.image_processor import ImageProcessor
+from config.settings import UPLOAD_DIR
 from app.services.mongodb_database import MongoDatabase
 from app.services.embedding_service import EmbeddingService
 from app.services.bible_service import BibleService
+from app.services.services_manager import ServicesManager
 
 # Configure logging
 logging.basicConfig(
@@ -24,29 +20,59 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Initialize services
-image_processor = ImageProcessor()
 database = MongoDatabase()
 embedding_service = EmbeddingService()
 bible_service = BibleService()
+services_manager = ServicesManager()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Manage application lifespan events."""
     # Startup
     try:
+        # Initialize all services (MongoDB and Ollama)
+        logger.info("Initializing all services...")
+        service_results = await services_manager.initialize_all_services()
+
+        if not service_results["mongodb"]:
+            logger.warning("MongoDB initialization failed. Database features may not work properly.")
+
+        if not service_results["ollama"]:
+            logger.warning("Ollama initialization failed. Embedding features may not work properly.")
+            logger.info("Please ensure Ollama is installed and run: ollama pull nomic-embed-text")
+
+        if not service_results["ollama_model"]:
+            logger.warning("Ollama model not available. Please run: ollama pull nomic-embed-text")
+
+        # Connect to database
         await database.connect()
-        model_available = await embedding_service.check_model_availability()
-        if not model_available:
-            logger.error("Embedding model not available. Please run: ollama pull nomic-embed-text")
-        logger.info("Application startup completed")
+
+        # Test Bible service
+        bible_test = await bible_service.test_connection()
+        if bible_test:
+            logger.info("📖 Bible API connection successful")
+        else:
+            logger.warning("⚠️ Bible API connection failed")
+
+        # Note: Embedding model will warm up on first use to avoid blocking startup
+        if service_results["ollama"] and service_results["ollama_model"]:
+            logger.info("✅ Embedding model available - will warm up on first use")
+
+        logger.info("🚀 Application startup completed")
     except Exception as e:
         logger.error(f"Startup failed: {e}")
 
     yield
 
     # Shutdown
-    database.close()
-    logger.info("Application shutdown completed")
+    logger.info("🛑 Shutting down application...")
+    try:
+        database.close()
+        services_manager.stop_all_services()
+        logger.info("✅ All services stopped successfully")
+    except Exception as e:
+        logger.error(f"❌ Error during shutdown: {e}")
+    logger.info("🔄 Application shutdown completed")
 
 # Initialize FastAPI app with lifespan
 app = FastAPI(
@@ -67,32 +93,6 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 # Templates
 templates = Jinja2Templates(directory="templates")
 
-def validate_file(file: UploadFile) -> None:
-    """Validate uploaded file."""
-    if not file.filename:
-        raise HTTPException(status_code=400, detail="No filename provided")
-
-    # Sanitize filename to prevent path traversal
-    filename = Path(file.filename).name
-    if '..' in filename or '/' in filename or '\\' in filename:
-        raise HTTPException(status_code=400, detail="Invalid filename")
-
-    file_ext = Path(filename).suffix.lower()
-    if file_ext not in ALLOWED_EXTENSIONS:
-        raise HTTPException(
-            status_code=400,
-            detail=f"File type not allowed. Allowed types: {', '.join(ALLOWED_EXTENSIONS)}"
-        )
-
-    if file.size and file.size > MAX_FILE_SIZE_MB * 1024 * 1024:
-        raise HTTPException(
-            status_code=400,
-            detail=f"File too large. Maximum size: {MAX_FILE_SIZE_MB}MB"
-        )
-
-    # Additional content type validation
-    if file.content_type and not file.content_type.startswith('image/'):
-        raise HTTPException(status_code=400, detail="Invalid file content type")
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
@@ -378,4 +378,11 @@ async def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    logger.info("🚀 Iniciando servidor...")
+    logger.info("💡 Pressione Ctrl+C para parar todos os serviços e encerrar")
+
+    try:
+        uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    except KeyboardInterrupt:
+        logger.info("🛑 Recebido sinal de interrupção (Ctrl+C)...")
+        logger.info("👋 Aplicação encerrada")

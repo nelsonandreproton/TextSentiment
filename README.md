@@ -10,6 +10,9 @@ Uma aplicação web que permite adicionar registros de texto manualmente e busca
 - **Armazenamento Vetorial**: Usa MongoDB para armazenamento eficiente e busca por similaridade
 - **IA Local**: Usa Ollama para gerar embeddings (focado na privacidade)
 - **Interface em Português**: Interface completamente traduzida para português brasileiro
+- **Inicialização Automática**: Inicia automaticamente serviços MongoDB e Ollama quando necessário
+- **Temporizador de Busca**: Mostra tempo de resposta em tempo real durante buscas
+- **Interface Limpa**: Resultados simplificados mostrando apenas título e percentagem de similaridade
 
 ## Pré-requisitos
 
@@ -47,17 +50,12 @@ Uma aplicação web que permite adicionar registros de texto manualmente e busca
    # Edite .env com suas credenciais do MongoDB
    ```
 
-4. **Iniciar serviços**
-   ```bash
-   # Iniciar MongoDB (se não estiver rodando)
-   # Iniciar Ollama (se não estiver rodando)
-   ollama serve
-   ```
-
-5. **Executar a aplicação**
+4. **Executar a aplicação**
    ```bash
    python main.py
    ```
+
+   **Nota**: A aplicação agora inicia automaticamente os serviços MongoDB e Ollama se não estiverem rodando!
 
 ## Uso
 
@@ -125,13 +123,14 @@ UPLOAD_DIR=uploads
 ### Problemas Comuns
 
 1. **Conexão com MongoDB falhou**
-   - Verifique se o MongoDB está rodando
+   - A aplicação tenta iniciar o MongoDB automaticamente
+   - Se falhar, verifique se o MongoDB está instalado corretamente
    - Verifique as credenciais do MongoDB no `.env`
-   - Certifique-se de que o banco de dados existe
 
 2. **Modelo Ollama não disponível**
-   - Execute: `ollama pull nomic-embed-text`
-   - Verifique o serviço Ollama: `ollama serve`
+   - A aplicação tenta iniciar o Ollama automaticamente
+   - Se o modelo não estiver disponível, execute: `ollama pull nomic-embed-text`
+   - Verifique se o Ollama está instalado corretamente
 
 3. **API Bíblica não responde**
    - Verifique a conexão com a internet
@@ -152,9 +151,8 @@ TextSentiment/
 │   └── services/               # Serviços de lógica de negócio
 │       ├── bible_service.py    # Integração com API bíblica
 │       ├── embedding_service.py # Integração com Ollama
-│       ├── image_processor.py  # Processamento de imagem (legado)
 │       ├── mongodb_database.py # Operações do MongoDB
-│       └── vision_ocr.py       # OCR com visão (legado)
+│       └── services_manager.py # Gerenciamento automático de serviços
 │
 ├── config/                     # Arquivos de configuração
 │   ├── settings.py             # Configurações da aplicação
@@ -166,18 +164,17 @@ TextSentiment/
 │   ├── records.html           # Lista de registros
 │   └── record_detail.html     # Detalhes do registro
 │
-├── uploads/                    # Imagens carregadas (legado)
+├── uploads/                    # Diretório de upload (legado - mantido por compatibilidade)
 └── logs/                      # Logs da aplicação
 ```
 
 ## Recursos de Segurança
 
-- Validação de tipo de arquivo
-- Limites de tamanho de arquivo
 - Prevenção de injeção SQL usando consultas parametrizadas
-- Sanitização de entrada
+- Sanitização de entrada para títulos e conteúdo
 - Sem registro de dados sensíveis
 - Processamento local (nenhum dado enviado para serviços externos)
+- Controle gracioso de interrupção (Ctrl+C para parar todos os serviços)
 
 ## Notas de Performance
 
